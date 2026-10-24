@@ -1,0 +1,1081 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AegisHealth • National Bed Availability & Resource Coordination System</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+  <!-- ============================================ -->
+  <!-- AADHAAR KYC & IDENTITY VERIFICATION MODAL    -->
+  <!-- ============================================ -->
+  <div class="auth-overlay" id="authOverlay" style="display: none;">
+    <div class="auth-card-wrapper">
+      <div class="auth-header-strip">
+        <div class="auth-govt-badge">
+          <div class="auth-emblem">🏛️</div>
+          <div>
+            <div class="auth-title">AegisHealth Digital Access Portal</div>
+            <div class="auth-sub">National Health Authority • Aadhaar e-KYC Verification</div>
+          </div>
+        </div>
+        <button class="icon-btn modal-close" id="closeAuthModalBtn" style="color:white; border-color:rgba(255,255,255,0.3); display:none;">✕</button>
+      </div>
+
+      <!-- Indian Aadhaar Card Visual Preview -->
+      <div class="aadhaar-preview-card">
+        <div class="aadhaar-tricolor-bar"></div>
+        <div class="aadhaar-card-top">
+          <span class="aadhaar-card-title">Unique Identification Authority of India (UIDAI)</span>
+          <span style="font-size: 10px; font-weight: 700; color: #15803d; background: #dcfce7; padding: 2px 6px; border-radius: 4px;">✓ e-KYC Ready</span>
+        </div>
+        <div class="aadhaar-card-body">
+          <div class="aadhaar-photo-box">
+            <span id="aadhaarCardAvatar">👤</span>
+            <span style="font-size: 9px; margin-top: 4px; color: #64748b;">PHOTO</span>
+          </div>
+          <div class="aadhaar-details">
+            <div class="aadhaar-name-display" id="aadhaarCardName">Dr. David Chen, MD</div>
+            <div class="aadhaar-role-display" id="aadhaarCardRole">Hospital Member • ICU Director & Intensivist</div>
+            <div class="aadhaar-number-display" id="aadhaarCardNumber">2345 6789 0123</div>
+          </div>
+          <div class="aadhaar-qr-placeholder" title="Encrypted Digital Signature">
+            ▦
+          </div>
+        </div>
+      </div>
+
+      <!-- Auth Form & Quick Demo Logins -->
+      <div class="auth-body-content">
+        <div class="auth-tabs">
+          <button class="auth-tab-btn active" id="tabLoginBtn" onclick="switchAuthTab('login')">Aadhaar Verification Login</button>
+          <button class="auth-tab-btn" id="tabRegisterBtn" onclick="switchAuthTab('register')">New Citizen / Staff Registration</button>
+        </div>
+
+        <!-- Login Form Panel -->
+        <div id="authLoginPanel">
+          <form id="aadhaarLoginForm">
+            <div class="form-group">
+              <label class="form-label">Enter 12-Digit Aadhaar Card Number *</label>
+              <div class="aadhaar-input-box">
+                <span class="aadhaar-icon-adornment">🆔</span>
+                <input type="text" id="loginAadhaarInput" class="aadhaar-input-field" placeholder="XXXX XXXX XXXX" maxlength="14" required>
+              </div>
+              <div style="font-size: 11px; color: var(--text-muted); margin-top: -8px; margin-bottom: 12px;">
+                Enter 12 numeric digits. System automatically verifies role (Admin vs Citizen) and KYC credentials.
+              </div>
+            </div>
+
+            <div style="display: flex; gap: 10px;">
+              <button type="submit" class="btn btn-primary" style="flex: 1;" id="loginSubmitBtn">
+                🔒 Verify e-KYC & Access Dashboard
+              </button>
+            </div>
+          </form>
+
+          <!-- Quick Demo Logins -->
+          <div class="demo-accounts-box">
+            <div class="demo-title">
+              <span>🚀 Quick One-Click Demo Verification</span>
+              <span style="font-size: 10px; color: var(--primary);">Instant Login</span>
+            </div>
+            <div class="demo-chips-grid">
+              <button class="demo-chip-btn" onclick="quickLoginAadhaar('234567890123')">
+                <div>
+                  <strong>Dr. David Chen, MD</strong> (ICU Director)
+                  <div style="font-size: 10px; color: var(--text-muted);">Aadhaar: 2345 6789 0123 • Emergency & CCU</div>
+                </div>
+                <span class="demo-role-badge badge-admin-role">Admin</span>
+              </button>
+              <button class="demo-chip-btn" onclick="quickLoginAadhaar('345678901234')">
+                <div>
+                  <strong>Sarah Jenkins, RN</strong> (Lead Triage Charge Nurse)
+                  <div style="font-size: 10px; color: var(--text-muted);">Aadhaar: 3456 7890 1234 • Emergency Dept</div>
+                </div>
+                <span class="demo-role-badge badge-admin-role">Admin</span>
+              </button>
+              <button class="demo-chip-btn" onclick="quickLoginAadhaar('987654321098')">
+                <div>
+                  <strong>Rajesh Kumar Sharma</strong> (Citizen / Relative)
+                  <div style="font-size: 10px; color: var(--text-muted);">Aadhaar: 9876 5432 1098 • Public Portal</div>
+                </div>
+                <span class="demo-role-badge badge-user-role">User</span>
+              </button>
+              <button class="demo-chip-btn" onclick="quickLoginAadhaar('876543210987')">
+                <div>
+                  <strong>Ananya Verma</strong> (Citizen / Inpatient Applicant)
+                  <div style="font-size: 10px; color: var(--text-muted);">Aadhaar: 8765 4321 0987 • Public Portal</div>
+                </div>
+                <span class="demo-role-badge badge-user-role">User</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Register Form Panel -->
+        <div id="authRegisterPanel" style="display: none;">
+          <form id="aadhaarRegisterForm">
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label">Full Legal Name (as on Aadhaar) *</label>
+                <input type="text" id="regNameInput" class="form-input" placeholder="e.g. Ramesh Patel" required>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Role Type *</label>
+                <select id="regRoleSelect" class="form-select">
+                  <option value="user" selected>Citizen / Patient (User Dashboard)</option>
+                  <option value="admin">Hospital Staff / Medical Officer (Admin Dashboard)</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label">12-Digit Aadhaar Number *</label>
+                <input type="text" id="regAadhaarInput" class="form-input" placeholder="XXXX XXXX XXXX" maxlength="14" required style="font-family: ui-monospace, monospace;">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Mobile Number (Linked with Aadhaar) *</label>
+                <input type="text" id="regMobileInput" class="form-input" placeholder="+91 XXXXX XXXXX" required>
+              </div>
+            </div>
+
+            <div class="form-group" id="regStaffFields" style="display: none;">
+              <div class="form-row">
+                <div class="form-group">
+                  <label class="form-label">Staff Designation / Title</label>
+                  <input type="text" id="regDesignationInput" class="form-input" placeholder="e.g. Staff Nurse, Resident Doctor">
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Assigned Department</label>
+                  <select id="regDeptSelect" class="form-select">
+                    <option value="ED">Emergency & Trauma Center</option>
+                    <option value="CCU">Cardiology & CCU</option>
+                    <option value="NICU">Neurology & Stroke</option>
+                    <option value="PICU">Pediatrics & PICU</option>
+                    <option value="SURG">General Surgery & Post-Op</option>
+                    <option value="RESP">Pulmonology & Respiratory</option>
+                    <option value="ONCO">Oncology & Hematology</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 6px;">
+              ✓ Complete Aadhaar e-KYC & Register
+            </button>
+          </form>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================ -->
+  <!-- MAIN APPLICATION LAYOUT                      -->
+  <!-- ============================================ -->
+  <div class="app-layout">
+    <!-- Left Navigation Sidebar -->
+    <aside class="sidebar">
+      <div class="brand-section">
+        <div class="brand-icon">🏥</div>
+        <div>
+          <div class="brand-title">AegisHealth Care</div>
+          <div class="brand-subtitle" id="sidebarPortalLabel">National Health Portal</div>
+        </div>
+      </div>
+
+      <!-- Active User Profile Card -->
+      <div class="staff-active-card">
+        <div class="staff-avatar" id="currentStaffAvatar">DC</div>
+        <div class="staff-info">
+          <div class="staff-name" id="currentStaffName">Dr. David Chen, MD</div>
+          <div class="staff-role" id="currentStaffRole">ICU Director & Intensivist</div>
+          <div style="font-size: 10px; color: #10b981; font-weight: 600; display: flex; align-items: center; gap: 3px;">
+            <span>✓</span> <span id="currentAadhaarMasked">Aadhaar Verified</span>
+          </div>
+        </div>
+        <button class="staff-switch-btn" id="switchIdentityBtn" title="Switch Account / Sign In">Switch</button>
+      </div>
+
+      <!-- Navigation Menu -->
+      <div class="nav-scroll">
+        <!-- ADMIN NAVIGATION SECTION -->
+        <div id="adminNavSection">
+          <div class="nav-section-title">Operations Command</div>
+          <a class="nav-link active" data-view="overview" id="nav-overview">
+            <span class="nav-link-left">
+              <span class="nav-icon">🌐</span>
+              <span>Hospital Overview</span>
+            </span>
+            <span class="nav-pill" id="nav-pill-overview">All</span>
+          </a>
+
+          <a class="nav-link" data-view="reservations" id="nav-reservations">
+            <span class="nav-link-left">
+              <span class="nav-icon">📥</span>
+              <span>Citizen Bed Requests</span>
+            </span>
+            <span class="nav-pill" id="nav-pill-reservations" style="background:#f59e0b; color:#1f2937;">0 pending</span>
+          </a>
+
+          <div class="nav-section-title">Department Dashboards</div>
+          <div id="deptNavList">
+            <!-- Populated by app.js: ED, CCU, NICU, PICU, SURG, RESP, ONCO -->
+          </div>
+
+          <div class="nav-section-title">Logistics & Governance</div>
+          <a class="nav-link" data-view="resources" id="nav-resources">
+            <span class="nav-link-left">
+              <span class="nav-icon">⚡</span>
+              <span>Equipment & Pool</span>
+            </span>
+          </a>
+          <a class="nav-link" data-view="audit" id="nav-audit">
+            <span class="nav-link-left">
+              <span class="nav-icon">📋</span>
+              <span>Audit Trail Log</span>
+            </span>
+          </a>
+        </div>
+
+        <!-- USER NAVIGATION SECTION -->
+        <div id="userNavSection" style="display: none;">
+          <div class="nav-section-title">Citizen Health Services</div>
+          <a class="nav-link active" data-view="user-home" id="nav-user-home">
+            <span class="nav-link-left">
+              <span class="nav-icon">🏠</span>
+              <span>Citizen Bed Portal</span>
+            </span>
+          </a>
+          <a class="nav-link" data-view="user-booking" id="nav-user-booking">
+            <span class="nav-link-left">
+              <span class="nav-icon">📝</span>
+              <span>Book a Hospital Bed</span>
+            </span>
+          </a>
+          <a class="nav-link" data-view="user-tracking" id="nav-user-tracking">
+            <span class="nav-link-left">
+              <span class="nav-icon">📋</span>
+              <span>My Bed Requests</span>
+            </span>
+            <span class="nav-pill" id="nav-pill-user-res" style="background:#10b981; color:white;">Track</span>
+          </a>
+          <a class="nav-link" data-view="user-departments" id="nav-user-depts">
+            <span class="nav-link-left">
+              <span class="nav-icon">🏥</span>
+              <span>Department Wards</span>
+            </span>
+          </a>
+          <a class="nav-link" data-view="user-sos" id="nav-user-sos">
+            <span class="nav-link-left">
+              <span class="nav-icon">🚑</span>
+              <span>Emergency 108 SOS</span>
+            </span>
+          </a>
+        </div>
+      </div>
+
+      <!-- Sidebar Footer / Simulation Controls -->
+      <div class="sidebar-footer">
+        <div class="sim-speed-box">
+          <div class="sim-label">
+            <span class="pulse-indicator"></span>
+            <span>Simulation</span>
+          </div>
+          <div class="sim-btn-group">
+            <button class="sim-btn active" data-speed="1">1x</button>
+            <button class="sim-btn" data-speed="5">5x</button>
+            <button class="sim-btn" data-speed="15">15x</button>
+          </div>
+        </div>
+        <div style="display: flex; gap: 6px;">
+          <button class="btn btn-outline btn-sm" id="resetSystemBtn" style="flex: 1; font-size: 11px;">
+            ↺ Reset Baseline
+          </button>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Content Wrapper -->
+    <main class="main-wrapper">
+      <!-- Top Application Header -->
+      <header class="top-header">
+        <div class="header-left">
+          <div class="page-headline" id="pageTitleText">
+            Hospital Operations Command Center
+          </div>
+          <!-- Role Indicator Badge with One-Click Toggle -->
+          <span class="role-indicator-pill role-admin" id="activeRoleBadge" onclick="toggleRoleDashboard()" title="Click to switch between Admin and Citizen Mode">
+            🛡️ Admin Mode
+          </span>
+          <span class="live-badge" id="headerKycBadge">
+            ✓ Aadhaar e-KYC Verified
+          </span>
+        </div>
+
+        <div class="header-actions">
+          <!-- Live Operational Clock -->
+          <div class="header-clock-box">
+            <span style="font-size: 14px;">🕒</span>
+            <div>
+              <span class="live-clock-time" id="headerLiveClock">12:25:13 PM</span>
+              <span style="font-size: 10px; color: var(--text-muted); margin-left: 4px;" id="headerLiveDate">Oct 24, 2026</span>
+            </div>
+            <span class="shift-badge" id="headerShiftBadge">Day Shift</span>
+          </div>
+
+          <!-- Admin-Only Action Controls -->
+          <div id="adminTopActions" style="display: flex; align-items: center; gap: 8px;">
+            <button class="btn btn-success btn-sm" id="completeAllSanitizationBtn" title="Clean and sterilize all beds currently waiting in cleaning queue">
+              ✨ Complete All Sanitization
+            </button>
+            <button class="btn btn-primary btn-sm" id="dischargeRecoveredBtn" title="Discharge all recovered and stable patients across units">
+              🩺 Discharge Recovered
+            </button>
+            <button class="btn btn-danger btn-sm" id="simulateSurgeBtn" title="Simulate multi-casualty emergency intake">
+              🚨 Emergency Surge
+            </button>
+          </div>
+
+          <!-- Citizen-Only Quick Action -->
+          <div id="userTopActions" style="display: none; align-items: center; gap: 8px;">
+            <button class="btn btn-danger btn-sm" onclick="navigateTo('user-booking')">
+              🚑 Request Bed Online
+            </button>
+          </div>
+
+          <div style="width: 1px; height: 24px; background: var(--border-color); margin: 0 4px;"></div>
+
+          <button class="icon-btn" id="audioToggleBtn" title="Toggle Audio Chimes">🔔</button>
+          <button class="icon-btn" id="themeToggleBtn" title="Toggle Dark/Light Mode">☀️</button>
+          <button class="btn btn-outline btn-sm" id="logoutBtn" style="font-size: 11px;">
+            Sign Out
+          </button>
+        </div>
+      </header>
+
+      <!-- Alert Ticker Banner -->
+      <div class="alert-ticker">
+        <div class="ticker-content">
+          <span class="ticker-tag" id="tickerTag">Alert Feed</span>
+          <span id="alertTickerText">Monitoring hospital capacity in real time...</span>
+        </div>
+        <span style="font-size: 11px; color: var(--text-muted);">Python Backend Active</span>
+      </div>
+
+      <!-- Main Scrollable Body -->
+      <div class="content-body">
+        
+        <!-- ============================================ -->
+        <!-- USER DASHBOARD: CITIZEN / PATIENT PORTAL    -->
+        <!-- ============================================ -->
+        <section id="viewUserDashboard" class="view-panel">
+          <!-- Citizen Hero Banner with Aadhaar KYC Status -->
+          <div class="user-hero-banner">
+            <div class="user-hero-left">
+              <div class="user-avatar-huge" id="citizenAvatarBig">RS</div>
+              <div>
+                <div class="user-greeting" id="citizenGreeting">Welcome, Rajesh Kumar Sharma</div>
+                <div class="user-aadhaar-tag">
+                  <span>🆔 Aadhaar Card: <strong id="citizenAadhaarDisplay">XXXX-XXXX-1098</strong></span>
+                  <span style="color: #10b981; font-weight: 700;">• ✓ Verified via UIDAI</span>
+                  <span>• 📱 <span id="citizenMobileDisplay">+91 98111 54321</span></span>
+                </div>
+              </div>
+            </div>
+
+            <div style="display: flex; gap: 10px; align-items: center;">
+              <button class="btn btn-primary" onclick="scrollOrSwitchToBooking()">
+                📝 Request Bed Allocation
+              </button>
+              <button class="btn btn-danger" onclick="triggerEmergencySosCall()">
+                🚨 108 Ambulance SOS
+              </button>
+            </div>
+          </div>
+
+          <!-- Citizen Live Hospital Capacity Overview -->
+          <div class="kpi-grid">
+            <div class="kpi-card">
+              <div class="kpi-header">
+                <span class="kpi-title">Total Beds Available Now</span>
+                <span class="kpi-icon" style="background: rgba(16, 185, 129, 0.15); color: #10b981;">✓</span>
+              </div>
+              <div class="kpi-value" id="userAvailBeds" style="color: #10b981;">0</div>
+              <div class="kpi-subtext">Immediate patient admissions open</div>
+            </div>
+
+            <div class="kpi-card">
+              <div class="kpi-header">
+                <span class="kpi-title">ICU Beds Ready</span>
+                <span class="kpi-icon" style="background: rgba(236, 72, 153, 0.15); color: #ec4899;">⚡</span>
+              </div>
+              <div class="kpi-value" id="userAvailIcu" style="color: #ec4899;">0</div>
+              <div class="kpi-subtext">Equipped with mechanical ventilators</div>
+            </div>
+
+            <div class="kpi-card">
+              <div class="kpi-header">
+                <span class="kpi-title">Emergency Bays Free</span>
+                <span class="kpi-icon" style="background: rgba(249, 115, 22, 0.15); color: #f97316;">🚨</span>
+              </div>
+              <div class="kpi-value" id="userAvailEmergency" style="color: #f97316;">0</div>
+              <div class="kpi-subtext">Immediate trauma & acute triage</div>
+            </div>
+
+            <div class="kpi-card">
+              <div class="kpi-header">
+                <span class="kpi-title">Longer Stay Inpatient Rooms</span>
+                <span class="kpi-icon" style="background: rgba(59, 130, 246, 0.15); color: #3b82f6;">🛌</span>
+              </div>
+              <div class="kpi-value" id="userAvailLongstay" style="color: #3b82f6;">0</div>
+              <div class="kpi-subtext">Post-op, recovery & inpatient care</div>
+            </div>
+          </div>
+
+          <!-- Request a Bed Booking Section -->
+          <div class="user-request-box" id="userBookingSection">
+            <div class="section-header" style="margin-top: 0;">
+              <div>
+                <h2 class="section-title">📝 Online Hospital Bed Booking Request</h2>
+                <p class="section-desc">Submit an immediate bed reservation request verified with your Aadhaar ID</p>
+              </div>
+            </div>
+
+            <form id="citizenBedBookingForm">
+              <div class="form-row">
+                <div class="form-group">
+                  <label class="form-label">Patient Full Legal Name *</label>
+                  <input type="text" id="userBookPatientName" class="form-input" placeholder="Patient's Name" required>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Patient Age *</label>
+                  <input type="number" id="userBookPatientAge" class="form-input" placeholder="Age" min="1" max="120" required>
+                </div>
+              </div>
+
+              <div class="form-row">
+                <div class="form-group">
+                  <label class="form-label">Patient / Applicant Aadhaar Number *</label>
+                  <input type="text" id="userBookAadhaar" class="form-input" readonly style="font-family: ui-monospace, monospace; background: var(--bg-main); color: var(--primary);">
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Emergency Contact Phone Number *</label>
+                  <input type="text" id="userBookMobile" class="form-input" placeholder="+91 XXXXX XXXXX" required>
+                </div>
+              </div>
+
+              <div class="form-row">
+                <div class="form-group">
+                  <label class="form-label">Preferred Department *</label>
+                  <select id="userBookDept" class="form-select">
+                    <option value="ED">Emergency & Trauma Center (ED)</option>
+                    <option value="CCU">Cardiology & Critical Care (CCU)</option>
+                    <option value="NICU">Neurology & Stroke Center</option>
+                    <option value="PICU">Pediatrics & PICU</option>
+                    <option value="SURG">General Surgery & Post-Op</option>
+                    <option value="RESP">Pulmonology & Respiratory Care</option>
+                    <option value="ONCO">Oncology & Hematology</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Required Bed Category *</label>
+                  <select id="userBookCategory" class="form-select">
+                    <option value="icu">⚡ ICU Bed (High Acuity / Critical Care)</option>
+                    <option value="emergency" selected>🚨 Emergency Bay (Immediate Triage / Trauma)</option>
+                    <option value="longstay">🛌 Room for Longer Stay (Inpatient / Recovery)</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Primary Symptoms / Medical Condition *</label>
+                <textarea id="userBookReason" class="form-textarea" rows="3" placeholder="Describe symptoms, reason for hospital visit, acute trauma, chest pain, fever, etc." required></textarea>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Special Life Support Equipment Required:</label>
+                <div class="checkbox-group">
+                  <label class="checkbox-item">
+                    <input type="checkbox" id="userBookNeedsOxygen">
+                    <span>🫧 High-Flow Oxygen Port Required</span>
+                  </label>
+                  <label class="checkbox-item">
+                    <input type="checkbox" id="userBookNeedsVentilator">
+                    <span>🫁 Mechanical Ventilator Support Required</span>
+                  </label>
+                </div>
+              </div>
+
+              <div style="display: flex; justify-content: flex-end; margin-top: 16px;">
+                <button type="submit" class="btn btn-primary" id="submitUserBookingBtn">
+                  🚀 Submit Bed Reservation Request
+                </button>
+              </div>
+            </form>
+          </div>
+
+          <!-- My Active Bed Reservations Tracking -->
+          <div class="section-header">
+            <div>
+              <h2 class="section-title">📋 My Active Bed Requests & Live Tracking</h2>
+              <p class="section-desc">Track status of your submitted bed bookings, assigned ward, and doctor</p>
+            </div>
+          </div>
+
+          <div class="user-booking-grid" id="userReservationsList">
+            <!-- Dynamically populated from Python backend -->
+          </div>
+
+          <!-- Live Department Bed Explorer for Citizens -->
+          <div class="section-header">
+            <div>
+              <h2 class="section-title">🏥 Hospital Wards & Doctor Availability Directory</h2>
+              <p class="section-desc">Explore department bed capacity and on-duty specialists</p>
+            </div>
+          </div>
+
+          <div class="panel-card" style="padding: 0; overflow: hidden; margin-bottom: 30px;">
+            <table class="dept-matrix-table">
+              <thead>
+                <tr>
+                  <th>Department / Ward</th>
+                  <th>ICU Beds</th>
+                  <th>Emergency Bays</th>
+                  <th>Longer Stay Rooms</th>
+                  <th>Attending Doctors on Duty</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody id="userDeptMatrixBody">
+                <!-- Dynamically populated -->
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- ============================================ -->
+        <!-- ADMIN DASHBOARD: RESERVATION REQUESTS QUEUE  -->
+        <!-- ============================================ -->
+        <section id="viewAdminReservations" class="view-panel">
+          <div class="section-header">
+            <div>
+              <h2 class="section-title">📥 Citizen Bed Reservation Requests Queue</h2>
+              <p class="section-desc">Review and triage incoming online bed booking requests from citizens and patients</p>
+            </div>
+          </div>
+
+          <div class="admin-reservations-panel" id="adminReservationsContainer">
+            <!-- Dynamically populated with request items -->
+          </div>
+        </section>
+
+        <!-- ============================================ -->
+        <!-- VIEW 1: OVERVIEW OF WHOLE HOSPITAL (ADMIN)   -->
+        <!-- ============================================ -->
+        <section id="viewOverview" class="view-panel active">
+          <!-- Hospital-Wide Top KPI Summary Cards -->
+          <div class="kpi-grid">
+            <div class="kpi-card">
+              <div class="kpi-header">
+                <span class="kpi-title">Total Hospital Beds</span>
+                <span class="kpi-icon" style="background: rgba(2, 132, 199, 0.15); color: #0284c7;">🏥</span>
+              </div>
+              <div class="kpi-value" id="ovTotalBeds">0</div>
+              <div class="kpi-subtext">Across 7 specialized departments</div>
+            </div>
+
+            <div class="kpi-card">
+              <div class="kpi-header">
+                <span class="kpi-title">Beds Available Now</span>
+                <span class="kpi-icon" style="background: rgba(16, 185, 129, 0.15); color: #10b981;">✓</span>
+              </div>
+              <div class="kpi-value" id="ovAvailableBeds" style="color: #10b981;">0</div>
+              <div class="kpi-subtext">Sterilized & ready for intake</div>
+            </div>
+
+            <div class="kpi-card">
+              <div class="kpi-header">
+                <span class="kpi-title">Beds Occupied</span>
+                <span class="kpi-icon" style="background: rgba(244, 63, 94, 0.15); color: #f43f5e;">🛌</span>
+              </div>
+              <div class="kpi-value" id="ovOccupiedBeds" style="color: #f43f5e;">0</div>
+              <div class="kpi-subtext">Active inpatient census</div>
+            </div>
+
+            <div class="kpi-card">
+              <div class="kpi-header">
+                <span class="kpi-title">Global Occupancy</span>
+                <span class="kpi-icon" style="background: rgba(245, 158, 11, 0.15); color: #f59e0b;">📊</span>
+              </div>
+              <div class="kpi-value" id="ovOccupancyPct">0%</div>
+              <div class="kpi-subtext">Target operational ceiling: 85%</div>
+            </div>
+
+            <div class="kpi-card">
+              <div class="kpi-header">
+                <span class="kpi-title">Sanitization Queue</span>
+                <span class="kpi-icon" style="background: rgba(56, 189, 248, 0.15); color: #38bdf8;">✨</span>
+              </div>
+              <div class="kpi-value" id="ovCleaningBeds" style="color: #38bdf8;">0</div>
+              <div class="kpi-subtext">Turnaround in progress</div>
+            </div>
+
+            <div class="kpi-card">
+              <div class="kpi-header">
+                <span class="kpi-title">Out of Service</span>
+                <span class="kpi-icon" style="background: rgba(168, 85, 247, 0.15); color: #a855f7;">🛠️</span>
+              </div>
+              <div class="kpi-value" id="ovMaintBeds">0</div>
+              <div class="kpi-subtext">Biomed maintenance check</div>
+            </div>
+          </div>
+
+          <!-- Hospital-Wide Category Breakdown (ICU, Emergency, Rooms for Longer Stays) -->
+          <div class="section-header">
+            <div>
+              <h2 class="section-title">⚡ Bed Category Distribution (Hospital-Wide)</h2>
+              <p class="section-desc">Independent real-time tracking for Intensive Care, Emergency, and Extended Stay Inpatient beds</p>
+            </div>
+          </div>
+
+          <div class="category-summary-grid" id="overviewCategoryCards">
+            <!-- Rendered by app.js: ICU, Emergency, Longer Stays cards -->
+          </div>
+
+          <!-- Department Comparison Matrix -->
+          <div class="section-header">
+            <div>
+              <h2 class="section-title">🏥 Department Census Matrix</h2>
+              <p class="section-desc">Quick side-by-side comparison of bed availability across every hospital department</p>
+            </div>
+          </div>
+
+          <div class="panel-card" style="padding: 0; overflow: hidden;">
+            <table class="dept-matrix-table">
+              <thead>
+                <tr>
+                  <th>Department / Unit</th>
+                  <th>ICU Beds (Avail / Total)</th>
+                  <th>Emergency Beds (Avail / Total)</th>
+                  <th>Longer Stay Rooms (Avail / Total)</th>
+                  <th>Occupancy Rate</th>
+                  <th style="text-align: right;">Action</th>
+                </tr>
+              </thead>
+              <tbody id="deptMatrixBody">
+                <!-- Rendered by app.js -->
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Hospital-Wide Bed Roster with Filtering -->
+          <div class="section-header">
+            <div>
+              <h2 class="section-title">📋 Comprehensive Bed Census Roster</h2>
+              <p class="section-desc">Filter and manage beds across all wings, departments, attending doctors, and acuity tiers</p>
+            </div>
+          </div>
+
+          <!-- Filter Toolbar -->
+          <div class="filter-bar">
+            <div class="filter-group-left">
+              <div class="search-input-box">
+                <span class="search-icon-svg">🔍</span>
+                <input type="text" id="filterSearch" class="search-input" placeholder="Search patient, doctor, MRN, bed ID...">
+              </div>
+
+              <select id="filterCategory" class="select-filter">
+                <option value="all">All Bed Categories</option>
+                <option value="icu">ICU Beds Only</option>
+                <option value="emergency">Emergency Beds Only</option>
+                <option value="longstay">Longer Stay Rooms Only</option>
+              </select>
+
+              <select id="filterStatus" class="select-filter">
+                <option value="all">All Statuses</option>
+                <option value="available">Available Ready</option>
+                <option value="occupied">Occupied</option>
+                <option value="reserved">Reserved Hold</option>
+                <option value="cleaning">Cleaning / Turnover</option>
+                <option value="maintenance">Maintenance</option>
+              </select>
+
+              <select id="filterAcuity" class="select-filter">
+                <option value="all">All Patient Acuities</option>
+                <option value="critical">Critical (Level 1)</option>
+                <option value="urgent">Urgent (Level 2)</option>
+                <option value="moderate">Moderate (Level 3)</option>
+                <option value="low">Low (Level 4/5)</option>
+              </select>
+            </div>
+
+            <button class="btn btn-outline btn-sm" onclick="resetFilters()">Clear Filters</button>
+          </div>
+
+          <!-- All Beds Grid -->
+          <div class="beds-grid" id="overviewBedsGrid">
+            <!-- Rendered by app.js -->
+          </div>
+        </section>
+
+        <!-- ============================================ -->
+        <!-- VIEW 2: DEPARTMENT-SPECIFIC DASHBOARD        -->
+        <!-- ============================================ -->
+        <section id="viewDepartment" class="view-panel">
+          <!-- Department Top Meta Strip -->
+          <div style="background: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--radius-lg); padding: 16px 20px; margin-bottom: 24px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;">
+            <div style="display: flex; align-items: center; gap: 12px;">
+              <span id="deptFloorTag" style="font-size: 13px; color: var(--text-secondary); background: var(--bg-main); padding: 4px 10px; border-radius: var(--radius-sm); border: 1px solid var(--border-color);">
+                Floor Location
+              </span>
+              <span class="live-badge" style="background: rgba(2, 132, 199, 0.15); color: #0284c7; border-color: rgba(2, 132, 199, 0.3);">
+                Department View
+              </span>
+            </div>
+
+            <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
+              <span id="deptTotalBadge" style="font-weight: 700; font-size: 13px;">0 Total Beds</span>
+              <span style="color: var(--border-color);">|</span>
+              <span id="deptAvailBadge" style="font-weight: 700; color: #10b981; font-size: 13px;">0 Available</span>
+              <span style="color: var(--border-color);">|</span>
+              <span id="deptOccBadge" style="font-weight: 700; color: #f43f5e; font-size: 13px;">0% Occupancy</span>
+              <span style="color: var(--border-color);">|</span>
+              <div class="quick-action-strip">
+                <button class="btn btn-success btn-sm" id="deptSanitizeAllBtn" onclick="completeDepartmentSanitization()">
+                  ✨ Sanitize Dept Beds
+                </button>
+                <button class="btn btn-primary btn-sm" id="deptDischargeRecoveredBtn" onclick="dischargeDepartmentRecovered()">
+                  🩺 Discharge Recovered
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Department Specific Category Cards (ICU, Emergency, Longer Stays) -->
+          <div class="section-header">
+            <div>
+              <h2 class="section-title">📊 Department Bed Categories Count</h2>
+              <p class="section-desc">Specific allocation breakdown between ICU, Emergency bays, and Rooms for Longer Stays</p>
+            </div>
+          </div>
+
+          <div class="category-summary-grid" id="deptCategoryCards">
+            <!-- Populated by app.js for the active department -->
+          </div>
+
+          <!-- Attending Doctors on Duty in Department -->
+          <div class="dept-doctors-panel" id="deptDoctorsPanel">
+            <div class="dept-doctors-title">
+              <span style="display:flex; align-items:center; gap:6px;">👨‍⚕️ <strong>Assigned Attending Doctors in This Department</strong></span>
+              <span style="font-size: 11px; text-transform: none; font-weight: normal; color: var(--text-muted);" id="deptDoctorFilterNote">Click doctor to highlight their assigned beds</span>
+            </div>
+            <div class="dept-doctors-chips" id="deptDoctorsList">
+              <!-- Populated dynamically by app.js -->
+            </div>
+          </div>
+
+          <!-- Department Beds Grid -->
+          <div class="section-header">
+            <div>
+              <h2 class="section-title">🛏️ Department Beds Status & Allocation</h2>
+              <p class="section-desc">Direct bed actions: admit patients, assign ventilators/monitors, manage transfers and discharges</p>
+            </div>
+          </div>
+
+          <div class="beds-grid" id="deptBedsGrid">
+            <!-- Populated by app.js -->
+          </div>
+        </section>
+
+        <!-- ============================================ -->
+        <!-- VIEW 3: EQUIPMENT & RESOURCE MANAGEMENT      -->
+        <!-- ============================================ -->
+        <section id="viewResources" class="view-panel">
+          <div class="section-header">
+            <div>
+              <h2 class="section-title">⚡ Hospital Critical Equipment Status</h2>
+              <p class="section-desc">Live status of mechanical ventilators, telemetry monitors, infusion pumps, and emergency devices</p>
+            </div>
+          </div>
+
+          <div class="resources-grid" id="resourcesGrid">
+            <!-- Populated by app.js -->
+          </div>
+        </section>
+
+        <!-- ============================================ -->
+        <!-- VIEW 4: AUDIT TRAIL HISTORY                  -->
+        <!-- ============================================ -->
+        <section id="viewAudit" class="view-panel">
+          <div class="section-header">
+            <div>
+              <h2 class="section-title">📋 Operational Audit History</h2>
+              <p class="section-desc">Tamper-evident operational log tracking all patient admissions, discharges, bed transfers, and status changes</p>
+            </div>
+            <button class="btn btn-primary btn-sm" id="exportAuditCsvBtn">
+              📥 Export Audit Log (CSV)
+            </button>
+          </div>
+
+          <div class="audit-table-wrap">
+            <table class="audit-table">
+              <thead>
+                <tr>
+                  <th>Timestamp</th>
+                  <th>Action</th>
+                  <th>Bed / Department</th>
+                  <th>Event Details</th>
+                  <th>Staff Operator</th>
+                  <th>Clinical Notes / Reason</th>
+                </tr>
+              </thead>
+              <tbody id="auditTableBody">
+                <!-- Populated by app.js -->
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+      </div>
+    </main>
+  </div>
+
+  <!-- ============================================ -->
+  <!-- MODALS                                       -->
+  <!-- ============================================ -->
+
+  <!-- 1. Admit Patient Modal -->
+  <div class="modal-overlay" id="admitModal">
+    <div class="modal-container">
+      <div class="modal-header">
+        <div class="modal-title" id="admitModalBedTitle">Admit Patient</div>
+        <button class="icon-btn modal-close">✕</button>
+      </div>
+      <form id="admitForm">
+        <input type="hidden" id="admitBedId">
+        <div class="modal-body">
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Patient Full Name *</label>
+              <input type="text" id="admitPatientName" class="form-input" placeholder="e.g. John Doe" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Age</label>
+              <input type="number" id="admitPatientAge" class="form-input" placeholder="e.g. 52" min="1" max="120">
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Medical Record Number (MRN) *</label>
+              <input type="text" id="admitPatientMRN" class="form-input" placeholder="MRN-XXXX" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Triage / Acuity Level *</label>
+              <select id="admitAcuity" class="form-select">
+                <option value="critical">Critical (Level 1 Resuscitation)</option>
+                <option value="urgent" selected>Urgent (Level 2 Emergent)</option>
+                <option value="moderate">Moderate (Level 3 Urgent)</option>
+                <option value="low">Low (Level 4/5 Semi/Non-Urgent)</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Primary Diagnosis / Admission Reason *</label>
+            <input type="text" id="admitDiagnosis" class="form-input" placeholder="e.g. Acute Coronary Syndrome, Polytrauma, Post-Op" required>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Assigned Attending Doctor *</label>
+              <select id="admitDoctorSelect" class="form-select">
+                <!-- Dynamically populated -->
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Admission Timestamp</label>
+              <input type="text" id="admitTimeDisplay" class="form-input" readonly style="font-family:ui-monospace, monospace; color:#38bdf8; background:var(--bg-main);">
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Allocate Equipment / Resources Immediately</label>
+            <div class="checkbox-group">
+              <label class="checkbox-item">
+                <input type="checkbox" name="resources" value="ventilators">
+                <span>🫁 Mechanical Ventilator</span>
+              </label>
+              <label class="checkbox-item">
+                <input type="checkbox" name="resources" value="monitors" checked>
+                <span>📈 Vital Signs Monitor</span>
+              </label>
+              <label class="checkbox-item">
+                <input type="checkbox" name="resources" value="infusion_pumps">
+                <span>💉 Infusion Smart Pump</span>
+              </label>
+              <label class="checkbox-item">
+                <input type="checkbox" name="resources" value="oxygen_ports">
+                <span>🫧 High-Flow O2 Port</span>
+              </label>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline modal-cancel">Cancel</button>
+          <button type="submit" class="btn btn-primary">Confirm Admission</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- 2. Transfer Patient Modal -->
+  <div class="modal-overlay" id="transferModal">
+    <div class="modal-container">
+      <div class="modal-header">
+        <div class="modal-title" id="transferModalTitle">Transfer Patient</div>
+        <button class="icon-btn modal-close">✕</button>
+      </div>
+      <form id="transferForm">
+        <input type="hidden" id="transferSourceBedId">
+        <div class="modal-body">
+          <div class="form-group">
+            <label class="form-label">Select Destination Bed *</label>
+            <select id="transferTargetBed" class="form-select" required>
+              <!-- Filled with available beds -->
+            </select>
+            <div style="font-size: 11px; color: var(--text-muted); margin-top: 4px;">
+              Only available, sanitized beds across departments are shown.
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Clinical Justification / Transfer Note</label>
+            <textarea id="transferReason" class="form-textarea" rows="3" placeholder="e.g. Stepped down from ICU to Telemetry Long Stay room. Stable vital signs."></textarea>
+          </div>
+
+          <div style="background: var(--bg-main); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 12px; font-size: 12px; color: var(--text-secondary);">
+            ℹ️ <strong>Workflow note:</strong> Transferring will automatically move the patient to the destination bed, migrate attached portable equipment, and mark the source bed as <strong>Cleaning</strong> for sanitization.
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline modal-cancel">Cancel</button>
+          <button type="submit" class="btn btn-primary" id="transferSubmitBtn">Execute Transfer</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- 3. Manual Status Change Modal -->
+  <div class="modal-overlay" id="statusModal">
+    <div class="modal-container">
+      <div class="modal-header">
+        <div class="modal-title" id="statusModalTitle">Change Bed Status</div>
+        <button class="icon-btn modal-close">✕</button>
+      </div>
+      <form id="statusForm">
+        <input type="hidden" id="statusBedId">
+        <div class="modal-body">
+          <div class="form-group">
+            <label class="form-label">New Status *</label>
+            <select id="statusSelect" class="form-select">
+              <option value="available">Available (Ready for patient)</option>
+              <option value="occupied">Occupied (Patient present)</option>
+              <option value="reserved">Reserved (Hold for incoming transfer)</option>
+              <option value="cleaning">Cleaning (Sanitization in progress)</option>
+              <option value="maintenance">Maintenance (Biomed inspection)</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Reason / Log Note</label>
+            <input type="text" id="statusReason" class="form-input" placeholder="e.g. EVS terminal clean finished, routine filter replacement">
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline modal-cancel">Cancel</button>
+          <button type="submit" class="btn btn-primary">Update Status</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- 4. Manage Bed Equipment Modal -->
+  <div class="modal-overlay" id="resourceModal">
+    <div class="modal-container">
+      <div class="modal-header">
+        <div class="modal-title" id="resModalTitle">Manage Equipment</div>
+        <button class="icon-btn modal-close">✕</button>
+      </div>
+      <form id="resourceForm">
+        <input type="hidden" id="resBedId">
+        <div class="modal-body">
+          <div class="form-group">
+            <label class="form-label">Select Equipment Deployed to this Bed:</label>
+            <div id="resModalChecklist" style="display: flex; flex-direction: column; gap: 8px;">
+              <!-- Rendered by app.js -->
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline modal-cancel">Cancel</button>
+          <button type="submit" class="btn btn-primary">Save Equipment</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- 5. Admin Approve Citizen Bed Reservation Modal -->
+  <div class="modal-overlay" id="approveResModal">
+    <div class="modal-container">
+      <div class="modal-header">
+        <div class="modal-title">Approve & Allocate Bed for Citizen Request</div>
+        <button class="icon-btn modal-close">✕</button>
+      </div>
+      <form id="approveResForm">
+        <input type="hidden" id="appResId">
+        <div class="modal-body">
+          <div style="background: var(--bg-main); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 12px; margin-bottom: 14px;">
+            <div style="font-weight: 700; font-size: 14px;" id="appResPatientName">Patient Name</div>
+            <div style="font-size: 11px; color: var(--text-secondary); margin-top: 2px;" id="appResMeta">Age • Aadhaar • Urgency</div>
+            <div style="font-size: 12px; color: var(--primary); margin-top: 4px;" id="appResReason">Condition Details</div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Select Available Bed to Assign *</label>
+            <select id="appResBedSelect" class="form-select" required>
+              <!-- Filled with available beds -->
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Assign Attending Physician *</label>
+            <select id="appResDocSelect" class="form-select">
+              <option value="Dr. David Chen, MD">Dr. David Chen, MD (Emergency Critical Care)</option>
+              <option value="Dr. Robert Gupta, MD">Dr. Robert Gupta, MD (Cardiology)</option>
+              <option value="Dr. Sarah Sterling, MD">Dr. Sarah Sterling, MD (Neurology)</option>
+              <option value="Dr. Maya Foster, MD">Dr. Maya Foster, MD (Pediatrics)</option>
+              <option value="Dr. Miranda Bailey, MD">Dr. Miranda Bailey, MD (Surgery)</option>
+              <option value="Dr. James Mercer, MD">Dr. James Mercer, MD (Pulmonology)</option>
+              <option value="Dr. Dana Vance, MD">Dr. Dana Vance, MD (Oncology)</option>
+            </select>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline modal-cancel">Cancel</button>
+          <button type="submit" class="btn btn-success">Confirm Approval & Reserve Bed</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Toast Notification Container -->
+  <div id="toastContainer" class="toast-container"></div>
+
+  <script src="app.js"></script>
+</body>
+</html>

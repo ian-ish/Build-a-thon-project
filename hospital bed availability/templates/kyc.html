@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  {% include "_head.html" %}
+  <title>Identity verification · AegisHealth Care</title>
+</head>
+<body class="auth-body">
+  <main class="auth-card wide">
+    <div class="auth-brand">
+      <div class="brand-icon">🏥</div>
+      <div style="flex:1"><div class="auth-title">AegisHealth Care</div><div class="auth-sub">Signed in as {{ user.full_name }}</div></div>
+      <button class="link-btn" data-action="logout" type="button">Sign out</button>
+    </div>
+
+    <!-- State: loading -->
+    <div id="stateLoading" class="empty">Loading…</div>
+
+    <!-- State: pending review -->
+    <section id="statePending" hidden>
+      <h1>Verification in progress <span class="status-pill pending">Pending</span></h1>
+      <p class="lead">Your ID has been submitted and is waiting for review by a hospital administrator.
+        This page updates automatically. You can close it and come back later.</p>
+      <div class="notice" id="pendingDetail"></div>
+    </section>
+
+    <!-- State: form (new or rejected) -->
+    <section id="stateForm" hidden>
+      <h1>Verify your identity (KYC)</h1>
+      <p class="lead">Step 2 of 2. The dashboard contains patient information, so we need to confirm who you are before giving access.</p>
+
+      <div id="rejectBox" class="form-error" role="alert"></div>
+      <div id="err" class="form-error" role="alert"></div>
+
+      <form id="kycForm" novalidate>
+        <div class="auth-row">
+          <div class="form-group">
+            <label class="form-label" for="id_type">ID document</label>
+            <select class="form-select" id="id_type" required>
+              <option value="">Select a document…</option>
+              {% for key, label in id_types.items() %}<option value="{{ key }}">{{ label }}</option>{% endfor %}
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="id_number">ID number</label>
+            <input class="form-input" id="id_number" autocomplete="off" spellcheck="false" required>
+            <div class="hint" id="idHint">Choose a document first.</div>
+          </div>
+        </div>
+
+        <div class="auth-row">
+          <div class="form-group">
+            <label class="form-label" for="legal_name">Name exactly as on the ID</label>
+            <input class="form-input" id="legal_name" autocomplete="off" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="dob">Date of birth</label>
+            <input class="form-input" id="dob" type="date" required>
+          </div>
+        </div>
+
+        <div class="auth-row">
+          <div class="form-group">
+            <label class="form-label" for="front">ID photo: front (JPG, PNG or PDF, max 5 MB)</label>
+            <div class="file-drop"><input id="front" type="file" accept="image/jpeg,image/png,application/pdf" required></div>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="back">ID photo: back (optional)</label>
+            <div class="file-drop"><input id="back" type="file" accept="image/jpeg,image/png,application/pdf"></div>
+          </div>
+        </div>
+
+        <div class="notice" id="privacyNote">
+          <strong>How we handle your ID:</strong> your document images are encrypted at rest and visible only to hospital
+          administrators for review. We keep just the <em>last 4 characters</em> of the ID number (plus a one-way hash used
+          to stop the same ID being used on two accounts), never the full number.
+          {% if kyc_mode == 'demo' %}<br><strong>Demo mode is on:</strong> submissions are approved automatically after format checks.{% endif %}
+        </div>
+
+        <label class="consent-row">
+          <input type="checkbox" id="consent">
+          <span>I consent to the hospital using this ID solely to verify my identity for access to this system.</span>
+        </label>
+
+        <button class="btn btn-primary" id="submitBtn" type="submit">Submit for verification</button>
+      </form>
+    </section>
+  </main>
+  <script src="/static/common.js"></script>
+  <script src="/static/kyc.js"></script>
+</body>
+</html>

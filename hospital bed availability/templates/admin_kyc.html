@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  {% include "_head.html" %}
+  <title>KYC review · AegisHealth Care</title>
+</head>
+<body class="auth-body" style="align-items:flex-start;">
+  <main class="admin-wrap">
+    <div class="admin-top">
+      <div class="auth-brand" style="margin:0">
+        <div class="brand-icon">🛡️</div>
+        <div><div class="auth-title">KYC review queue</div><div class="auth-sub">Signed in as {{ user.full_name }} (administrator)</div></div>
+      </div>
+      <div style="display:flex; gap:8px;">
+        <a class="btn btn-outline btn-sm" href="/">← Dashboard</a>
+        <button class="btn btn-outline btn-sm" data-action="logout" type="button">Sign out</button>
+      </div>
+    </div>
+    <div class="tabs" id="tabs">
+      <button class="tab-btn active" data-status="pending" type="button">Pending</button>
+      <button class="tab-btn" data-status="verified" type="button">Verified</button>
+      <button class="tab-btn" data-status="rejected" type="button">Rejected</button>
+    </div>
+    <div id="err" class="form-error" role="alert"></div>
+    <div id="list"></div>
+  </main>
+  <div class="toast-container" id="toastContainer"></div>
+  <script src="/static/common.js"></script>
+  <script src="/static/admin_kyc.js"></script>
+</body>
+</html>
